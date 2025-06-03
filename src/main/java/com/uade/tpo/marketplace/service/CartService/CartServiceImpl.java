@@ -77,7 +77,7 @@ public class CartServiceImpl implements CartService {
 
         List<CartItemDTO> itemsDTO = cart.getItems().stream().map(item -> {
             Product product = item.getProduct();
-            ProductCartDTO productCartDTO = new ProductCartDTO(product.getId(),product.getDescription(), product.getPrice());
+            ProductCartDTO productCartDTO = new ProductCartDTO(product.getId(),product.getName(), product.getPrice());
             return new CartItemDTO(productCartDTO, item.getQuantity());
         }).toList();
 

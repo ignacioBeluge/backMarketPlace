@@ -105,9 +105,11 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public void deleteOrder(String orderId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteOrder'");
+    public void deleteOrder(Long orderId) {
+        Order order = ordersRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+            
+        ordersRepository.delete(order);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class OrdersServiceImpl implements OrdersService {
 
             for (OrderItem item : orderItems) {
                 OrderItemDTO itemDTO = new OrderItemDTO(
-                        item.getProduct().getDescription(),
+                        item.getProduct().getName(),
                         item.getPrice(),
                         item.getQuantity());
                 itemsDTOs.add(itemDTO);

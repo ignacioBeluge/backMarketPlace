@@ -13,7 +13,10 @@ import com.uade.tpo.marketplace.entity.dto.OrderResponseDTO;
 import com.uade.tpo.marketplace.exceptions.CartEmptyException;
 import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
 import com.uade.tpo.marketplace.service.OrderService.OrdersService;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -38,6 +41,12 @@ public class OrdersController {
         String email  = authentication.getName();
         List<OrderResponseDTO> ordersDTO = ordersService.getOrdersByEmail(email);
         return ResponseEntity.ok(ordersDTO);
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
+        ordersService.deleteOrder(orderId);
+        return ResponseEntity.ok("Se elimino la orden de compra " + orderId);
     }
 
 }

@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDTO> getProducts(PageRequest pageable) {
-        Page<Product> productPage = productRepository.findAllWithStock(pageable);
+        Page<Product> productPage = productRepository.findAll(pageable);
 
         return productPage.map(product -> new ProductDTO(
             product.getId(),
