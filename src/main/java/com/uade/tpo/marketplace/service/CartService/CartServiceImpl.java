@@ -1,5 +1,6 @@
 package com.uade.tpo.marketplace.service.CartService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,7 +73,7 @@ public class CartServiceImpl implements CartService {
         }
         Cart cart = cartRepository.findByUserEmail(email).orElse(null);
         if (cart == null) {
-            throw new RuntimeException("Carrito vacio");
+            return new CartDTO(Collections.emptyList(), 0.0);
         }
 
         List<CartItemDTO> itemsDTO = cart.getItems().stream().map(item -> {
