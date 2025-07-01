@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
 import com.uade.tpo.marketplace.entity.Order;
@@ -48,5 +49,11 @@ public class OrdersController {
         ordersService.deleteOrder(orderId);
         return ResponseEntity.ok("Se elimino la orden de compra " + orderId);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
+    List<OrderResponseDTO> orders = ordersService.getAllOrders();
+    return ResponseEntity.ok(orders);
+}
 
 }

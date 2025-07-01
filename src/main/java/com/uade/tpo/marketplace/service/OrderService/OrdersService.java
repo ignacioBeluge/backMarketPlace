@@ -12,5 +12,6 @@ public interface OrdersService {
     OrderResponseDTO createOrder(String email) throws CartEmptyException, UserNotFoundException;
     void deleteOrder(Long orderId);
     List<OrderResponseDTO> getOrdersByEmail(String email);
+    List<OrderResponseDTO> getAllOrders();
 
 }

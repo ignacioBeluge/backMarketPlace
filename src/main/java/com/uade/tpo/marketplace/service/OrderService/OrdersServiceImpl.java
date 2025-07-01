@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.*;
@@ -17,6 +18,7 @@ import com.uade.tpo.marketplace.repository.OrdersRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 
@@ -50,6 +52,23 @@ public class OrdersServiceImpl implements OrdersService {
             throw new CartEmptyException();
         }
 
+        List<String> erroresStock = new ArrayList<>();
+
+        // Primero verificamos stock y acumulamos errores
+        for (CartItem item : cartItems) {
+            Product product = item.getProduct();
+            int quantity = item.getQuantity();
+
+            if (product.getStock() < quantity) {
+                erroresStock.add("Stock insuficiente para \"" + product.getName() + "\" (disponible: "
+                        + product.getStock() + ")");
+            }
+        }
+
+        if (!erroresStock.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join("\n", erroresStock));
+        }
+
         Order order = new Order();
         order.setUser(user);
         order.setOrderDate(LocalDate.now());
@@ -57,19 +76,11 @@ public class OrdersServiceImpl implements OrdersService {
         List<OrderItem> orderItems = new ArrayList<>();
         double total = 0;
 
-        // Recorremos los items del carrito y los agregamos a la orden
-        // y actualizamos el stock de los productos
         for (CartItem item : cartItems) {
             Product product = item.getProduct();
             int quantity = item.getQuantity();
 
-            int nuevoStock = product.getStock() - quantity;
-
-            if (nuevoStock < 0) {
-                throw new RuntimeException("Stock insuficiente para " + product.getDescription());
-            }
-
-            product.setStock(nuevoStock);
+            product.setStock(product.getStock() - quantity);
             productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
@@ -89,26 +100,19 @@ public class OrdersServiceImpl implements OrdersService {
         cartItemRepository.deleteAll(cartItems);
         cartRepository.delete(cart);
 
-        // Contruimos el DTO de respuesta para que el json no sea un choclo
-
         List<OrderItemDTO> itemsDTOs = orderItems.stream().map(item -> new OrderItemDTO(
                 item.getProduct().getDescription(),
                 item.getPrice(),
                 item.getQuantity())).toList();
 
-        OrderResponseDTO orderResponseDTO = new OrderResponseDTO(
-                order.getId(),
-                order.getOrderDate(),
-                order.getTotal(),
-                itemsDTOs);
-        return orderResponseDTO;
+        return new OrderResponseDTO(order.getId(), order.getOrderDate(), order.getTotal(), itemsDTOs);
     }
 
     @Override
     public void deleteOrder(Long orderId) {
         Order order = ordersRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
-            
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
         ordersRepository.delete(order);
     }
 
@@ -139,5 +143,36 @@ public class OrdersServiceImpl implements OrdersService {
         }
         return orderResponseDTOs;
     }
+
+    @Override
+public List<OrderResponseDTO> getAllOrders() {
+    List<Order> orders = ordersRepository.findAll();
+
+    List<OrderResponseDTO> orderResponseDTOs = new ArrayList<>();
+
+    for (Order order : orders) {
+        List<OrderItemDTO> itemsDTOs = new ArrayList<>();
+
+        for (OrderItem item : order.getOrderItems()) {
+            OrderItemDTO itemDTO = new OrderItemDTO(
+                item.getProduct().getName(),
+                item.getPrice(),
+                item.getQuantity()
+            );
+            itemsDTOs.add(itemDTO);
+        }
+
+        OrderResponseDTO dto = new OrderResponseDTO(
+            order.getId(),
+            order.getOrderDate(),
+            order.getTotal(),
+            itemsDTOs
+        );
+
+        orderResponseDTOs.add(dto);
+    }
+
+    return orderResponseDTOs;
+}
 
 }
