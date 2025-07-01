@@ -98,4 +98,12 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteById(productId);
     }
+
+    @Override
+    public void updatePrice(Long productId, double price) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + productId));
+        product.setPrice(price);
+        productRepository.save(product);
+    }
 }

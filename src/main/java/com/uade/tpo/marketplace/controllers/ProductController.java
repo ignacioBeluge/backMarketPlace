@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.uade.tpo.marketplace.entity.*;
 import com.uade.tpo.marketplace.entity.dto.ProductDTO;
+import com.uade.tpo.marketplace.entity.dto.UpdatePriceRequest;
 import com.uade.tpo.marketplace.entity.dto.UpdateStockRequest;
 import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
 import com.uade.tpo.marketplace.service.CategoryService.CategoryService;
@@ -69,6 +70,13 @@ public class ProductController {
     public ResponseEntity<String> updateStock(@PathVariable Long id, @RequestBody UpdateStockRequest request) {
         productService.updateStock(id, request.getStock());
         return ResponseEntity.ok("Stock actualizado correctamente");
+
+    }
+
+    @PutMapping("/{id}/price")
+    public ResponseEntity<String> updatePrice(@PathVariable Long id, @RequestBody UpdatePriceRequest request) {
+        productService.updatePrice(id, request.getPrice());
+        return ResponseEntity.ok("Precio actualizado correctamente");
 
     }
 

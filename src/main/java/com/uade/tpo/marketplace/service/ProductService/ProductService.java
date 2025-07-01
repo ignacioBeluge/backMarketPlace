@@ -21,4 +21,6 @@ public interface ProductService {
     public void updateStock(Long productId, int newStock);
 
     public void deleteProduct(Long productId);
+
+    public void updatePrice(Long productId, double newPrice);
 }
